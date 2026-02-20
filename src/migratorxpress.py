@@ -448,11 +448,11 @@ def suggest_workflow(
             "task": "translate",
             "description": "Translate source schema DDL to target-compatible DDL",
             "example": (
-                f"MigratorXpress -a auth.json "
-                f"--source_db_auth_id source_db --source_db_name mydb "
-                f"--target_db_auth_id target_db --target_db_name targetdb "
-                f"--migration_db_auth_id migration_db "
-                f"--task_list translate"
+                "MigratorXpress -a auth.json "
+                "--source_db_auth_id source_db --source_db_name mydb "
+                "--target_db_auth_id target_db --target_db_name targetdb "
+                "--migration_db_auth_id migration_db "
+                "--task_list translate"
             ),
         }
     )
@@ -464,11 +464,11 @@ def suggest_workflow(
             "task": "create",
             "description": "Create target tables from translated DDL",
             "example": (
-                f"MigratorXpress -a auth.json "
-                f"--source_db_auth_id source_db --source_db_name mydb "
-                f"--target_db_auth_id target_db --target_db_name targetdb "
-                f"--migration_db_auth_id migration_db "
-                f"--task_list create"
+                "MigratorXpress -a auth.json "
+                "--source_db_auth_id source_db --source_db_name mydb "
+                "--target_db_auth_id target_db --target_db_name targetdb "
+                "--migration_db_auth_id migration_db "
+                "--task_list create"
             ),
         }
     )
@@ -480,11 +480,11 @@ def suggest_workflow(
             "task": "transfer",
             "description": "Transfer data from source to target tables",
             "example": (
-                f"MigratorXpress -a auth.json "
-                f"--source_db_auth_id source_db --source_db_name mydb "
-                f"--target_db_auth_id target_db --target_db_name targetdb "
-                f"--migration_db_auth_id migration_db "
-                f"--task_list transfer"
+                "MigratorXpress -a auth.json "
+                "--source_db_auth_id source_db --source_db_name mydb "
+                "--target_db_auth_id target_db --target_db_name targetdb "
+                "--migration_db_auth_id migration_db "
+                "--task_list transfer"
             ),
         }
     )
@@ -496,11 +496,11 @@ def suggest_workflow(
             "task": "diff",
             "description": "Compare source and target row counts to verify transfer",
             "example": (
-                f"MigratorXpress -a auth.json "
-                f"--source_db_auth_id source_db --source_db_name mydb "
-                f"--target_db_auth_id target_db --target_db_name targetdb "
-                f"--migration_db_auth_id migration_db "
-                f"--task_list diff"
+                "MigratorXpress -a auth.json "
+                "--source_db_auth_id source_db --source_db_name mydb "
+                "--target_db_auth_id target_db --target_db_name targetdb "
+                "--migration_db_auth_id migration_db "
+                "--task_list diff"
             ),
         }
     )
@@ -513,11 +513,11 @@ def suggest_workflow(
                 "task": "copy_pk + copy_ak + copy_fk",
                 "description": "Copy primary keys, alternate keys, and foreign keys to target",
                 "example": (
-                    f"MigratorXpress -a auth.json "
-                    f"--source_db_auth_id source_db --source_db_name mydb "
-                    f"--target_db_auth_id target_db --target_db_name targetdb "
-                    f"--migration_db_auth_id migration_db "
-                    f"--task_list copy_pk copy_ak copy_fk"
+                    "MigratorXpress -a auth.json "
+                    "--source_db_auth_id source_db --source_db_name mydb "
+                    "--target_db_auth_id target_db --target_db_name targetdb "
+                    "--migration_db_auth_id migration_db "
+                    "--task_list copy_pk copy_ak copy_fk"
                 ),
             }
         )
@@ -529,11 +529,11 @@ def suggest_workflow(
             "task": "all",
             "description": "Alternative: run all tasks in a single invocation",
             "example": (
-                f"MigratorXpress -a auth.json "
-                f"--source_db_auth_id source_db --source_db_name mydb "
-                f"--target_db_auth_id target_db --target_db_name targetdb "
-                f"--migration_db_auth_id migration_db "
-                f"--task_list all"
+                "MigratorXpress -a auth.json "
+                "--source_db_auth_id source_db --source_db_name mydb "
+                "--target_db_auth_id target_db --target_db_name targetdb "
+                "--migration_db_auth_id migration_db "
+                "--task_list all"
             ),
         }
     )

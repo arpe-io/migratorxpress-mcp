@@ -184,7 +184,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "log_level": {
                         "type": "string",
-                        "enum": [l.value for l in LogLevel],
+                        "enum": [level.value for level in LogLevel],
                     },
                     "log_dir": {"type": "string"},
                     "no_banner": {"type": "boolean", "default": False},
