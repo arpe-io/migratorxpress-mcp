@@ -246,9 +246,7 @@ class CommandBuilder:
                 masked[i + 1] = "******"
         return masked
 
-    def format_command_display(
-        self, command: List[str], mask: bool = True
-    ) -> str:
+    def format_command_display(self, command: List[str], mask: bool = True) -> str:
         """
         Format command for display.
 
@@ -303,7 +301,9 @@ class CommandBuilder:
         """
         start_time = datetime.now()
 
-        logger.info(f"Executing MigratorXpress command: {' '.join(self.mask_sensitive(command))}")
+        logger.info(
+            f"Executing MigratorXpress command: {' '.join(self.mask_sensitive(command))}"
+        )
 
         try:
             result = subprocess.run(
@@ -362,9 +362,7 @@ class CommandBuilder:
                 f.write(f"Timestamp: {datetime.now().isoformat()}\n")
                 f.write(f"Duration: {duration:.2f} seconds\n")
                 f.write(f"Return Code: {return_code}\n\n")
-                f.write(
-                    f"Command:\n{' '.join(self.mask_sensitive(command))}\n\n"
-                )
+                f.write(f"Command:\n{' '.join(self.mask_sensitive(command))}\n\n")
                 f.write(f"{'=' * 80}\n")
                 f.write(f"STDOUT:\n{stdout}\n\n")
                 f.write(f"{'=' * 80}\n")

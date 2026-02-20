@@ -83,37 +83,23 @@ class MigrationParams(BaseModel):
     auth_file: str = Field(
         ..., description="Path to authentication/credentials JSON file"
     )
-    source_db_auth_id: str = Field(
-        ..., description="Source database credential ID"
-    )
-    source_db_name: str = Field(
-        ..., description="Source database name"
-    )
-    target_db_auth_id: str = Field(
-        ..., description="Target database credential ID"
-    )
-    target_db_name: str = Field(
-        ..., description="Target database name"
-    )
+    source_db_auth_id: str = Field(..., description="Source database credential ID")
+    source_db_name: str = Field(..., description="Source database name")
+    target_db_auth_id: str = Field(..., description="Target database credential ID")
+    target_db_name: str = Field(..., description="Target database name")
     migration_db_auth_id: str = Field(
         ..., description="Migration database credential ID"
     )
 
     # Schema
-    source_schema_name: Optional[str] = Field(
-        None, description="Source schema name"
-    )
-    target_schema_name: Optional[str] = Field(
-        None, description="Target schema name"
-    )
+    source_schema_name: Optional[str] = Field(None, description="Source schema name")
+    target_schema_name: Optional[str] = Field(None, description="Target schema name")
 
     # Tasks
     task_list: Optional[List[str]] = Field(
         None, description="List of tasks to run (nargs='+')"
     )
-    resume: Optional[str] = Field(
-        None, description="Resume a previous run by RUN_ID"
-    )
+    resume: Optional[str] = Field(None, description="Resume a previous run by RUN_ID")
 
     # FastTransfer
     fasttransfer_dir_path: Optional[str] = Field(
@@ -127,9 +113,7 @@ class MigrationParams(BaseModel):
     )
 
     # Parallelism
-    n_jobs: Optional[int] = Field(
-        None, description="Number of concurrent jobs"
-    )
+    n_jobs: Optional[int] = Field(None, description="Number of concurrent jobs")
 
     # Index thresholds
     cci_threshold: Optional[int] = Field(
@@ -153,17 +137,11 @@ class MigrationParams(BaseModel):
     )
 
     # Load
-    load_mode: Optional[LoadMode] = Field(
-        None, description="Data load mode"
-    )
+    load_mode: Optional[LoadMode] = Field(None, description="Data load mode")
 
     # Filtering
-    include_tables: Optional[str] = Field(
-        None, description="Table include pattern"
-    )
-    exclude_tables: Optional[str] = Field(
-        None, description="Table exclude pattern"
-    )
+    include_tables: Optional[str] = Field(None, description="Table include pattern")
+    exclude_tables: Optional[str] = Field(None, description="Table exclude pattern")
     min_rows: Optional[int] = Field(
         None, description="Minimum row count for table inclusion"
     )
@@ -183,9 +161,7 @@ class MigrationParams(BaseModel):
     profiling_sample_pc: Optional[float] = Field(
         None, description="Profiling sample percentage"
     )
-    p_query: Optional[float] = Field(
-        None, description="Profiling query parameter"
-    )
+    p_query: Optional[float] = Field(None, description="Profiling query parameter")
     min_sample_pc_profile: Optional[float] = Field(
         None, description="Minimum sample percentage for profiling"
     )
@@ -196,17 +172,11 @@ class MigrationParams(BaseModel):
     without_xid: bool = Field(False, description="Disable XID tracking")
 
     # FK
-    fk_mode: Optional[FkMode] = Field(
-        None, description="Foreign key constraint mode"
-    )
+    fk_mode: Optional[FkMode] = Field(None, description="Foreign key constraint mode")
 
     # Logging
-    log_level: Optional[LogLevel] = Field(
-        None, description="Logging verbosity level"
-    )
-    log_dir: Optional[str] = Field(
-        None, description="Directory for log files"
-    )
+    log_level: Optional[LogLevel] = Field(None, description="Logging verbosity level")
+    log_dir: Optional[str] = Field(None, description="Directory for log files")
 
     # Display
     no_banner: bool = Field(False, description="Suppress the startup banner")
@@ -217,9 +187,7 @@ class MigrationParams(BaseModel):
     license: Optional[str] = Field(
         None, description="License key (SENSITIVE — will be masked in display)"
     )
-    license_file: Optional[str] = Field(
-        None, description="Path to license file"
-    )
+    license_file: Optional[str] = Field(None, description="Path to license file")
 
     @model_validator(mode="after")
     def validate_task_list_values(self):
@@ -232,9 +200,7 @@ class MigrationParams(BaseModel):
                         f"Invalid task '{task}'. Valid tasks: {sorted(valid_tasks)}"
                     )
             if "all" in self.task_list and len(self.task_list) > 1:
-                raise ValueError(
-                    "Task 'all' cannot be combined with other tasks."
-                )
+                raise ValueError("Task 'all' cannot be combined with other tasks.")
         return self
 
     @model_validator(mode="after")

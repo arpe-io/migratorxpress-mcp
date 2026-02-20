@@ -198,9 +198,7 @@ class VersionDetector:
                     f"Detected MigratorXpress version: {self._detected_version}"
                 )
             else:
-                logger.warning(
-                    f"Could not parse version from output: {output!r}"
-                )
+                logger.warning(f"Could not parse version from output: {output!r}")
         except subprocess.TimeoutExpired:
             logger.warning("Version detection timed out")
         except FileNotFoundError:
