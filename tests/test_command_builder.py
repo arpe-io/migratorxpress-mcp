@@ -40,7 +40,16 @@ def command_builder(mock_binary):
         )
         mock_detector.capabilities.migration_db_types = frozenset(["sqlserver"])
         mock_detector.capabilities.tasks = frozenset(
-            ["translate", "create", "transfer", "diff", "copy_pk", "copy_ak", "copy_fk", "all"]
+            [
+                "translate",
+                "create",
+                "transfer",
+                "diff",
+                "copy_pk",
+                "copy_ak",
+                "copy_fk",
+                "all",
+            ]
         )
         mock_detector.capabilities.fk_modes = frozenset(
             ["trusted", "untrusted", "disabled"]
@@ -272,9 +281,7 @@ class TestCommandBuilder:
 
     def test_mask_sensitive_license(self, command_builder):
         """Test that mask_sensitive masks the license value."""
-        params = MigrationParams(
-            **_minimal_params(license="SECRET-KEY-123")
-        )
+        params = MigrationParams(**_minimal_params(license="SECRET-KEY-123"))
         command = command_builder.build_command(params)
         masked = command_builder.mask_sensitive(command)
 
@@ -288,9 +295,7 @@ class TestCommandBuilder:
 
     def test_mask_sensitive_preserves_original(self, command_builder):
         """Test that mask_sensitive does not modify the original command."""
-        params = MigrationParams(
-            **_minimal_params(license="SECRET-KEY-123")
-        )
+        params = MigrationParams(**_minimal_params(license="SECRET-KEY-123"))
         command = command_builder.build_command(params)
         original_command = list(command)
         command_builder.mask_sensitive(command)
@@ -299,9 +304,7 @@ class TestCommandBuilder:
 
     def test_format_command_display_masked(self, command_builder):
         """Test format_command_display with masking (default)."""
-        params = MigrationParams(
-            **_minimal_params(license="SECRET-KEY-123")
-        )
+        params = MigrationParams(**_minimal_params(license="SECRET-KEY-123"))
         command = command_builder.build_command(params)
         display = command_builder.format_command_display(command, mask=True)
 
@@ -310,9 +313,7 @@ class TestCommandBuilder:
 
     def test_format_command_display_unmasked(self, command_builder):
         """Test format_command_display without masking."""
-        params = MigrationParams(
-            **_minimal_params(license="SECRET-KEY-123")
-        )
+        params = MigrationParams(**_minimal_params(license="SECRET-KEY-123"))
         command = command_builder.build_command(params)
         display = command_builder.format_command_display(command, mask=False)
 
@@ -460,7 +461,9 @@ class TestHelperFunctions:
 
     def test_suggest_workflow_without_constraints(self):
         """Test workflow suggestion without constraints."""
-        workflow = suggest_workflow("sqlserver", "postgresql", include_constraints=False)
+        workflow = suggest_workflow(
+            "sqlserver", "postgresql", include_constraints=False
+        )
 
         assert workflow["include_constraints"] is False
 

@@ -236,34 +236,28 @@ class TestMigrationParams:
     def test_task_list_all_with_others(self):
         """Test that 'all' cannot be combined with other tasks."""
         with pytest.raises(ValidationError) as exc_info:
-            MigrationParams(
-                **self._minimal_params(task_list=["all", "translate"])
-            )
+            MigrationParams(**self._minimal_params(task_list=["all", "translate"]))
         errors = exc_info.value.errors()
         assert any("all" in str(e).lower() for e in errors)
 
     def test_string_boolean_valid_true(self):
         """Test valid string-boolean 'true'."""
-        params = MigrationParams(
-            **self._minimal_params(compute_nbrows="true")
-        )
+        params = MigrationParams(**self._minimal_params(compute_nbrows="true"))
         assert params.compute_nbrows == "true"
 
     def test_string_boolean_valid_false(self):
         """Test valid string-boolean 'false'."""
-        params = MigrationParams(
-            **self._minimal_params(drop_tables_if_exists="false")
-        )
+        params = MigrationParams(**self._minimal_params(drop_tables_if_exists="false"))
         assert params.drop_tables_if_exists == "false"
 
     def test_string_boolean_invalid(self):
         """Test that invalid string-boolean raises error."""
         with pytest.raises(ValidationError) as exc_info:
-            MigrationParams(
-                **self._minimal_params(compute_nbrows="yes")
-            )
+            MigrationParams(**self._minimal_params(compute_nbrows="yes"))
         errors = exc_info.value.errors()
-        assert any("true" in str(e).lower() or "false" in str(e).lower() for e in errors)
+        assert any(
+            "true" in str(e).lower() or "false" in str(e).lower() for e in errors
+        )
 
     def test_license_mutual_exclusivity(self):
         """Test that license and license_file are mutually exclusive."""
@@ -279,9 +273,7 @@ class TestMigrationParams:
 
     def test_license_alone_valid(self):
         """Test that license alone is valid."""
-        params = MigrationParams(
-            **self._minimal_params(license="ABC-123")
-        )
+        params = MigrationParams(**self._minimal_params(license="ABC-123"))
         assert params.license == "ABC-123"
 
     def test_license_file_alone_valid(self):
