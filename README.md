@@ -1,6 +1,6 @@
-<!-- mcp-name: io.github.aetperf/migratorxpress-mcp -->
-
 # MigratorXpress MCP Server
+
+<!-- mcp-name: io.github.arpe-io/migratorxpress-mcp -->
 
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for [MigratorXpress](https://aetperf.github.io/MigratorXpress-Documentation/), enabling database migration between heterogeneous database systems through AI assistants.
 
