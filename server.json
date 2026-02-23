@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.arpe-io/migratorxpress-mcp",
+  "description": "MCP server for MigratorXpress — automated data pipeline from on-prem databases to cloud data platforms as Parquet. Sources include PostgreSQL, SQL Server, Oracle, MySQL, MariaDB. Cloud stages: S3, Azure Blob, ADLS Gen2, GCS, OneLake. Publishes to Snowflake, Databricks, AWS Glue, and Microsoft Fabric.",
+  "repository": {
+    "url": "https://github.com/arpe-io/migratorxpress-mcp",
+    "source": "github"
+  },
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "migratorxpress-mcp",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Path to the MigratorXpress binary",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": false,
+          "name": "MIGRATORXPRESS_PATH"
+        },
+        {
+          "description": "Execution timeout in seconds (default: 1800)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "MIGRATORXPRESS_TIMEOUT"
+        }
+      ]
+    }
+  ]
+}
