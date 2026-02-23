@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.arpe-io/migratorxpress-mcp",
-  "description": "MCP server for MigratorXpress — automated cross-platform database migration with schema translation, parallel data transfer and built-in validation. Migrate from Oracle, SQL Server, PostgreSQL and Netezza to PostgreSQL or SQL Server with dual-level parallelism.",
+  "description": "MCP server for MigratorXpress — cross-platform database migration with parallel transfer",
   "repository": {
     "url": "https://github.com/arpe-io/migratorxpress-mcp",
     "source": "github"
