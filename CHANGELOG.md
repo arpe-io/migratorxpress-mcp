@@ -1,5 +1,17 @@
 # Changelog
 
+All notable changes to the MigratorXpress MCP Server will be documented in this file.
+
+## [0.1.1] - 2026-02-23
+
+### Added
+
+- `server.json` MCP Registry configuration file with package metadata, transport settings, and environment variable definitions
+
+### Changed
+
+- GitHub repository URL updated from `aetperf/migratorxpress-mcp` to `arpe-io/migratorxpress-mcp` in `pyproject.toml`
+
 ## [0.1.0] - 2025-02-20
 
 ### Added
