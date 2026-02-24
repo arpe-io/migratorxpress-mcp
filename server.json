@@ -24,11 +24,21 @@
           "name": "MIGRATORXPRESS_PATH"
         },
         {
-          "description": "Execution timeout in seconds (default: 1800)",
+          "description": "Execution timeout in seconds (default: 3600)",
           "isRequired": false,
           "format": "string",
           "isSecret": false,
           "name": "MIGRATORXPRESS_TIMEOUT"
+        },
+        {
+          "description": "Directory for execution logs (default: ./logs)",
+          "format": "string",
+          "name": "MIGRATORXPRESS_LOG_DIR"
+        },
+        {
+          "description": "Logging level: DEBUG, INFO, WARNING, ERROR (default: INFO)",
+          "format": "string",
+          "name": "LOG_LEVEL"
         }
       ]
     }
