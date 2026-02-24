@@ -41,8 +41,8 @@ migratorxpress-mcp = "src.server:main"
 
 [project.urls]
 Homepage = "https://aetperf.github.io/MigratorXpress-Documentation/"
-Repository = "https://github.com/aetperf/migratorxpress-mcp"
-Issues = "https://github.com/aetperf/migratorxpress-mcp/issues"
+Repository = "https://github.com/arpe-io/migratorxpress-mcp"
+Issues = "https://github.com/arpe-io/migratorxpress-mcp/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
