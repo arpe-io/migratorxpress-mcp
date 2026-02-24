@@ -2,6 +2,10 @@
 
 <!-- mcp-name: io.github.arpe-io/migratorxpress-mcp -->
 
+[![PyPI](https://img.shields.io/pypi/v/migratorxpress-mcp)](https://pypi.org/project/migratorxpress-mcp/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![MCP Registry](https://img.shields.io/badge/MCP-Registry-blue)](https://registry.modelcontextprotocol.io/?q=arpe-io)
+
 A [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for [MigratorXpress](https://aetperf.github.io/MigratorXpress-Documentation/), enabling database migration between heterogeneous database systems through AI assistants.
 
 MigratorXpress supports migrating from Oracle, PostgreSQL, SQL Server, and Netezza to PostgreSQL or SQL Server targets.
