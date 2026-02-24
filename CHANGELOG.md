@@ -2,6 +2,18 @@
 
 All notable changes to the MigratorXpress MCP Server will be documented in this file.
 
+## [0.1.3] - 2026-02-24
+
+### Added
+- PyPI, License, and MCP Registry badges in README
+- GitHub Actions workflow for automated PyPI publishing on release
+- Missing environment variables (`MIGRATORXPRESS_LOG_DIR`, `LOG_LEVEL`) in server.json
+- GitHub repository topics for MCP Registry discoverability
+
+### Fixed
+- Timeout default in server.json (corrected from 1800 to 3600 to match actual code)
+- Documentation URL in pyproject.toml
+
 ## [0.1.1] - 2026-02-23
 
 ### Added
