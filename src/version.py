@@ -245,3 +245,29 @@ class VersionDetector:
 
         # If detected version is older than all known, fall back to latest
         return best if best is not None else _SORTED_VERSIONS[-1][1]
+
+
+def check_version_compatibility(
+    params: dict,
+    capabilities: VersionCapabilities,
+    detected_version: Optional[MigratorXpressVersion],
+) -> list[str]:
+    """Check for version-gated features and return warning strings.
+
+    Args:
+        params: The parameters dict for the command
+        capabilities: Resolved capabilities for the detected version
+        detected_version: The detected MigratorXpress version, or None
+
+    Returns:
+        List of warning strings (empty if all OK)
+    """
+    warnings: list[str] = []
+
+    # No version-gated features yet — add checks here as they appear
+    # Example pattern:
+    # if params.get("some_feature") and not capabilities.supports_some_feature:
+    #     ver_str = str(detected_version) if detected_version else "unknown"
+    #     warnings.append(f"--some_feature requires MigratorXpress X.Y.Z+, but detected version is {ver_str}")
+
+    return warnings

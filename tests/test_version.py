@@ -9,6 +9,7 @@ from src.version import (
     MigratorXpressVersion,
     VersionDetector,
     VERSION_REGISTRY,
+    check_version_compatibility,
 )
 
 
@@ -266,3 +267,31 @@ class TestVersionDetector:
         expected = {"truncate", "append"}
         assert caps.load_modes == expected
         assert len(caps.load_modes) == 2
+
+
+class TestCheckVersionCompatibility:
+    """Tests for check_version_compatibility function."""
+
+    def test_basic_params_no_warnings(self):
+        """Basic params produce no warnings."""
+        caps = VERSION_REGISTRY["0.6.24"]
+        version = MigratorXpressVersion(0, 6, 24)
+        warnings = check_version_compatibility(
+            {"source_db_name": "mydb"}, caps, version
+        )
+        assert warnings == []
+
+    def test_empty_params_no_warnings(self):
+        """Empty params produce no warnings."""
+        caps = VERSION_REGISTRY["0.6.24"]
+        version = MigratorXpressVersion(0, 6, 24)
+        warnings = check_version_compatibility({}, caps, version)
+        assert warnings == []
+
+    def test_none_version_no_warnings(self):
+        """None detected version with basic params produces no warnings."""
+        caps = VERSION_REGISTRY["0.6.24"]
+        warnings = check_version_compatibility(
+            {"source_db_name": "mydb"}, caps, None
+        )
+        assert warnings == []

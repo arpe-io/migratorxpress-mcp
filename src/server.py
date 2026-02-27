@@ -49,6 +49,7 @@ from src.migratorxpress import (
     get_supported_capabilities,
     suggest_workflow,
 )
+from src.version import check_version_compatibility
 
 
 # Load environment variables
@@ -102,99 +103,182 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "auth_file": {
                         "type": "string",
-                        "description": "Path to auth JSON file",
+                        "description": "Path to authentication/credentials JSON file",
                     },
                     "source_db_auth_id": {
                         "type": "string",
-                        "description": "Source database credential ID",
+                        "description": "Source database credential ID from the auth file",
                     },
                     "source_db_name": {
                         "type": "string",
-                        "description": "Source database name",
+                        "description": "Source database name to migrate from",
                     },
                     "target_db_auth_id": {
                         "type": "string",
-                        "description": "Target database credential ID",
+                        "description": "Target database credential ID from the auth file",
                     },
                     "target_db_name": {
                         "type": "string",
-                        "description": "Target database name",
+                        "description": "Target database name to migrate to",
                     },
                     "migration_db_auth_id": {
                         "type": "string",
-                        "description": "Migration database credential ID",
+                        "description": "Migration tracking database credential ID from the auth file",
                     },
-                    "source_schema_name": {"type": "string"},
-                    "target_schema_name": {"type": "string"},
+                    "source_schema_name": {
+                        "type": "string",
+                        "description": "Source schema name. If omitted, all schemas are migrated",
+                    },
+                    "target_schema_name": {
+                        "type": "string",
+                        "description": "Target schema name. Defaults to source schema name if omitted",
+                    },
                     "task_list": {
                         "type": "array",
                         "items": {
                             "type": "string",
                             "enum": [t.value for t in TaskType],
                         },
-                        "description": "Tasks to run",
+                        "description": "Tasks to run (e.g., translate, create, transfer, diff, copy_pk, copy_ak, copy_fk, all)",
                     },
                     "resume": {
                         "type": "string",
                         "description": "Resume a previous run by RUN_ID",
                     },
-                    "fasttransfer_dir_path": {"type": "string"},
-                    "fasttransfer_p": {"type": "integer"},
-                    "ft_large_table_th": {"type": "integer"},
-                    "n_jobs": {"type": "integer"},
-                    "cci_threshold": {"type": "integer"},
-                    "aci_threshold": {"type": "integer"},
+                    "fasttransfer_dir_path": {
+                        "type": "string",
+                        "description": "Path to FastTransfer binary directory for parallel data transfer",
+                    },
+                    "fasttransfer_p": {
+                        "type": "integer",
+                        "description": "FastTransfer parallel degree (number of threads per table transfer)",
+                    },
+                    "ft_large_table_th": {
+                        "type": "integer",
+                        "description": "Row count threshold above which FastTransfer parallelism is used",
+                    },
+                    "n_jobs": {
+                        "type": "integer",
+                        "description": "Number of concurrent table transfers",
+                    },
+                    "cci_threshold": {
+                        "type": "integer",
+                        "description": "Row count threshold for clustered columnstore index creation on target",
+                    },
+                    "aci_threshold": {
+                        "type": "integer",
+                        "description": "Row count threshold for auto-created indexes on target",
+                    },
                     "migration_db_mode": {
                         "type": "string",
                         "enum": [m.value for m in MigrationDbMode],
+                        "description": "Migration database mode: preserve (keep), truncate (clear data), drop (recreate)",
                     },
                     "compute_nbrows": {
                         "type": "string",
                         "enum": ["true", "false"],
+                        "description": "Compute row counts for source tables before transfer",
                     },
                     "drop_tables_if_exists": {
                         "type": "string",
                         "enum": ["true", "false"],
+                        "description": "Drop target tables before creating them",
                     },
                     "load_mode": {
                         "type": "string",
                         "enum": [m.value for m in LoadMode],
+                        "description": "Data load mode: truncate (clear target first) or append",
                     },
-                    "include_tables": {"type": "string"},
-                    "exclude_tables": {"type": "string"},
-                    "min_rows": {"type": "integer"},
-                    "max_rows": {"type": "integer"},
+                    "include_tables": {
+                        "type": "string",
+                        "description": "Table include patterns, comma-separated. Supports wildcards",
+                    },
+                    "exclude_tables": {
+                        "type": "string",
+                        "description": "Table exclude patterns, comma-separated. Supports wildcards",
+                    },
+                    "min_rows": {
+                        "type": "integer",
+                        "description": "Minimum row count filter — only migrate tables with at least this many rows",
+                    },
+                    "max_rows": {
+                        "type": "integer",
+                        "description": "Maximum row count filter — only migrate tables with at most this many rows",
+                    },
                     "forced_int_id_prefixes": {
                         "type": "array",
                         "items": {"type": "string"},
+                        "description": "Column name prefixes to force integer identity mapping",
                     },
                     "forced_int_id_suffixes": {
                         "type": "array",
                         "items": {"type": "string"},
+                        "description": "Column name suffixes to force integer identity mapping",
                     },
-                    "profiling_sample_pc": {"type": "number"},
-                    "p_query": {"type": "number"},
-                    "min_sample_pc_profile": {"type": "number"},
-                    "force": {"type": "boolean", "default": False},
-                    "basic_diff": {"type": "boolean", "default": False},
-                    "without_xid": {"type": "boolean", "default": False},
+                    "profiling_sample_pc": {
+                        "type": "number",
+                        "description": "Percentage of rows to sample for data profiling (0-100)",
+                    },
+                    "p_query": {
+                        "type": "number",
+                        "description": "Parallelism degree for profiling queries",
+                    },
+                    "min_sample_pc_profile": {
+                        "type": "number",
+                        "description": "Minimum sample percentage for profiling small tables",
+                    },
+                    "force": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Force overwrite of existing migration data",
+                    },
+                    "basic_diff": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Use basic diff mode (row counts only, no checksum)",
+                    },
+                    "without_xid": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Disable transaction ID tracking during transfer",
+                    },
                     "fk_mode": {
                         "type": "string",
                         "enum": [m.value for m in FkMode],
+                        "description": "Foreign key mode: trusted, untrusted, or disabled",
                     },
                     "log_level": {
                         "type": "string",
                         "enum": [level.value for level in LogLevel],
+                        "description": "Logging verbosity level",
                     },
-                    "log_dir": {"type": "string"},
-                    "no_banner": {"type": "boolean", "default": False},
-                    "no_progress": {"type": "boolean", "default": False},
-                    "quiet_ft": {"type": "boolean", "default": False},
+                    "log_dir": {
+                        "type": "string",
+                        "description": "Directory for log files",
+                    },
+                    "no_banner": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Suppress the startup banner",
+                    },
+                    "no_progress": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Disable progress bar display",
+                    },
+                    "quiet_ft": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Suppress FastTransfer console output during data transfer",
+                    },
                     "license": {
                         "type": "string",
                         "description": "License key (will be masked in display)",
                     },
-                    "license_file": {"type": "string"},
+                    "license_file": {
+                        "type": "string",
+                        "description": "Path to license key file",
+                    },
                 },
                 "required": [
                     "auth_file",
@@ -337,6 +421,13 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
         # Validate and parse parameters
         params = MigrationParams(**arguments)
 
+        # Check version compatibility
+        version_warnings = check_version_compatibility(
+            arguments,
+            command_builder.version_detector.capabilities,
+            command_builder.version_detector._detected_version,
+        )
+
         # Build command
         command = command_builder.build_command(params)
 
@@ -352,6 +443,15 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
             "",
             "## What this command will do:",
             explanation,
+        ]
+
+        if version_warnings:
+            response.append("")
+            response.append("## \u26a0 Version Compatibility Warnings")
+            for warning in version_warnings:
+                response.append(f"- {warning}")
+
+        response += [
             "",
             "## Command:",
             "```bash",

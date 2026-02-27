@@ -2,6 +2,12 @@
 
 All notable changes to the MigratorXpress MCP Server will be documented in this file.
 
+## [0.1.4] - 2026-02-27
+
+### Added
+- Rich descriptions for all properties in MCP tool schemas (helps LLMs provide correct parameters)
+- Version compatibility check infrastructure in `preview_command` output
+
 ## [0.1.3] - 2026-02-24
 
 ### Added
