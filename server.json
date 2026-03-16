@@ -6,19 +6,19 @@
     "url": "https://github.com/arpe-io/migratorxpress-mcp",
     "source": "github"
   },
-  "version": "0.1.4",
+  "version": "0.1.5",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "migratorxpress-mcp",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "description": "Path to the MigratorXpress binary",
-          "isRequired": true,
+          "description": "Path to the MigratorXpress binary (optional — server runs in preview-only mode without it)",
+          "isRequired": false,
           "format": "string",
           "isSecret": false,
           "name": "MIGRATORXPRESS_PATH"
