@@ -38,6 +38,8 @@ class TargetDatabaseType(str, Enum):
 
     POSTGRESQL = "postgresql"
     SQLSERVER = "sqlserver"
+    MYSQL = "mysql"
+    ORACLE = "oracle"
 
 
 class MigrationDbMode(str, Enum):

@@ -76,12 +76,19 @@ app = Server("migratorxpress")
 try:
     command_builder = CommandBuilder(MIGRATORXPRESS_PATH)
     version_info = command_builder.get_version()
-    logger.info(f"MigratorXpress binary found at: {MIGRATORXPRESS_PATH}")
-    if version_info["detected"]:
-        logger.info(f"MigratorXpress version: {version_info['version']}")
+    if command_builder._preview_only:
+        logger.warning(
+            "MigratorXpress server starting in preview-only mode. "
+            "Preview and informational tools will work, but execution is disabled. "
+            "Install the binary from https://arpe.io to enable execution."
+        )
     else:
-        logger.warning("MigratorXpress version could not be detected")
-except MigratorXpressError as e:
+        logger.info(f"MigratorXpress binary found at: {MIGRATORXPRESS_PATH}")
+        if version_info["detected"]:
+            logger.info(f"MigratorXpress version: {version_info['version']}")
+        else:
+            logger.warning("MigratorXpress version could not be detected")
+except Exception as e:
     logger.error(f"Failed to initialize CommandBuilder: {e}")
     command_builder = None
 
@@ -410,9 +417,10 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
             TextContent(
                 type="text",
                 text=(
-                    "Error: MigratorXpress binary not found or not accessible.\n"
-                    f"Expected location: {MIGRATORXPRESS_PATH}\n"
-                    "Please set MIGRATORXPRESS_PATH environment variable correctly."
+                    "Error: MigratorXpress could not be initialized.\n"
+                    f"Expected binary location: {MIGRATORXPRESS_PATH}\n"
+                    "Please set MIGRATORXPRESS_PATH environment variable correctly.\n"
+                    "Install the binary from https://arpe.io"
                 ),
             )
         ]
@@ -441,13 +449,25 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
         response = [
             "# MigratorXpress Command Preview",
             "",
+        ]
+
+        if command_builder._preview_only:
+            response += [
+                "**NOTE: Server is in preview-only mode (binary not found at "
+                f"{command_builder.binary_path}). "
+                "Command preview is available but execution is disabled. "
+                "Install the binary from https://arpe.io to enable execution.**",
+                "",
+            ]
+
+        response += [
             "## What this command will do:",
             explanation,
         ]
 
         if version_warnings:
             response.append("")
-            response.append("## \u26a0 Version Compatibility Warnings")
+            response.append("## Version Compatibility Warnings")
             for warning in version_warnings:
                 response.append(f"- {warning}")
 
@@ -493,7 +513,23 @@ async def handle_execute_command(arguments: Dict[str, Any]) -> list[TextContent]
         return [
             TextContent(
                 type="text",
-                text="Error: MigratorXpress binary not found. Please check MIGRATORXPRESS_PATH.",
+                text=(
+                    "Error: MigratorXpress could not be initialized. "
+                    "Please check MIGRATORXPRESS_PATH.\n"
+                    "Install the binary from https://arpe.io"
+                ),
+            )
+        ]
+
+    if command_builder._preview_only:
+        return [
+            TextContent(
+                type="text",
+                text=(
+                    f"Server is in preview-only mode (binary not found at "
+                    f"{command_builder.binary_path}). "
+                    "Install the binary from https://arpe.io to enable execution."
+                ),
             )
         ]
 
@@ -745,9 +781,10 @@ async def handle_get_version(arguments: Dict[str, Any]) -> list[TextContent]:
             TextContent(
                 type="text",
                 text=(
-                    "Error: MigratorXpress binary not found or not accessible.\n"
+                    "Error: MigratorXpress could not be initialized.\n"
                     f"Expected location: {MIGRATORXPRESS_PATH}\n"
-                    "Please set MIGRATORXPRESS_PATH environment variable correctly."
+                    "Please set MIGRATORXPRESS_PATH environment variable correctly.\n"
+                    "Install the binary from https://arpe.io"
                 ),
             )
         ]
@@ -758,10 +795,26 @@ async def handle_get_version(arguments: Dict[str, Any]) -> list[TextContent]:
     response = [
         "# MigratorXpress Version Information",
         "",
-        f"**Version**: {version_info['version'] or 'Unknown'}",
-        f"**Detected**: {'Yes' if version_info['detected'] else 'No'}",
-        f"**Binary Path**: {version_info['binary_path']}",
-        "",
+    ]
+
+    if version_info.get("preview_only"):
+        response += [
+            "**Mode**: Preview-only (binary not found)",
+            f"**Binary Path**: {version_info['binary_path']}",
+            f"**Message**: {version_info['message']}",
+            "",
+            "Capabilities below are based on the latest known version.",
+            "",
+        ]
+    else:
+        response += [
+            f"**Version**: {version_info['version'] or 'Unknown'}",
+            f"**Detected**: {'Yes' if version_info['detected'] else 'No'}",
+            f"**Binary Path**: {version_info['binary_path']}",
+            "",
+        ]
+
+    response += [
         "## Supported Source Databases:",
         ", ".join(f"`{d}`" for d in caps["source_databases"]),
         "",
@@ -788,6 +841,9 @@ async def handle_get_version(arguments: Dict[str, Any]) -> list[TextContent]:
         f"- Version Flag: {'Yes' if caps['supports_version_flag'] else 'No'}",
         f"- FastTransfer: {'Yes' if caps['supports_fasttransfer'] else 'No'}",
         f"- License: {'Yes' if caps['supports_license'] else 'No'}",
+        f"- No Progress: {'Yes' if caps.get('supports_no_progress') else 'No'}",
+        f"- Quiet FT: {'Yes' if caps.get('supports_quiet_ft') else 'No'}",
+        f"- Log Dir: {'Yes' if caps.get('supports_log_dir') else 'No'}",
     ]
 
     return [TextContent(type="text", text="\n".join(response))]

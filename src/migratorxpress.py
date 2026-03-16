@@ -34,18 +34,24 @@ class CommandBuilder:
 
         Args:
             binary_path: Path to the MigratorXpress binary
-
-        Raises:
-            MigratorXpressError: If binary doesn't exist or isn't executable
         """
         self.binary_path = Path(binary_path)
+        self._preview_only = False
         self._validate_binary()
         self._version_detector = VersionDetector(str(self.binary_path))
-        detected = self._version_detector.detect()
-        if detected:
-            logger.info(f"MigratorXpress version {detected} detected")
+        if not self._preview_only:
+            detected = self._version_detector.detect()
+            if detected:
+                logger.info(f"MigratorXpress version {detected} detected")
+            else:
+                logger.warning("Could not detect MigratorXpress version")
         else:
-            logger.warning("Could not detect MigratorXpress version")
+            # Skip version detection; use latest known capabilities as fallback
+            self._version_detector._detection_done = True
+            logger.info(
+                "Preview-only mode: skipping version detection, "
+                "using latest known capabilities"
+            )
 
     @property
     def version_detector(self) -> VersionDetector:
@@ -57,11 +63,39 @@ class CommandBuilder:
 
         Returns:
             Dict with version string, detection status, binary path, and capabilities.
+            When in preview-only mode, includes preview_only flag and install message.
         """
+        if self._preview_only:
+            caps = self._version_detector.capabilities
+            return {
+                "preview_only": True,
+                "binary_path": str(self.binary_path),
+                "message": "Binary not found. Install from https://arpe.io",
+                "version": None,
+                "detected": False,
+                "capabilities": {
+                    "source_databases": sorted(caps.source_databases),
+                    "target_databases": sorted(caps.target_databases),
+                    "migration_db_types": sorted(caps.migration_db_types),
+                    "tasks": sorted(caps.tasks),
+                    "fk_modes": sorted(caps.fk_modes),
+                    "migration_db_modes": sorted(caps.migration_db_modes),
+                    "load_modes": sorted(caps.load_modes),
+                    "supports_no_banner": caps.supports_no_banner,
+                    "supports_version_flag": caps.supports_version_flag,
+                    "supports_fasttransfer": caps.supports_fasttransfer,
+                    "supports_license": caps.supports_license,
+                    "supports_no_progress": caps.supports_no_progress,
+                    "supports_quiet_ft": caps.supports_quiet_ft,
+                    "supports_log_dir": caps.supports_log_dir,
+                },
+            }
+
         detected = self._version_detector.detect()
         caps = self._version_detector.capabilities
 
         return {
+            "preview_only": False,
             "version": str(detected) if detected else None,
             "detected": detected is not None,
             "binary_path": str(self.binary_path),
@@ -77,25 +111,41 @@ class CommandBuilder:
                 "supports_version_flag": caps.supports_version_flag,
                 "supports_fasttransfer": caps.supports_fasttransfer,
                 "supports_license": caps.supports_license,
+                "supports_no_progress": caps.supports_no_progress,
+                "supports_quiet_ft": caps.supports_quiet_ft,
+                "supports_log_dir": caps.supports_log_dir,
             },
         }
 
     def _validate_binary(self) -> None:
-        """Validate that MigratorXpress binary exists and is executable."""
+        """Validate that MigratorXpress binary exists and is executable.
+
+        If the binary is not found, sets preview-only mode instead of raising.
+        """
         if not self.binary_path.exists():
-            raise MigratorXpressError(
-                f"MigratorXpress binary not found at: {self.binary_path}"
+            self._preview_only = True
+            logger.warning(
+                f"MigratorXpress binary not found at: {self.binary_path}. "
+                "Starting in preview-only mode. "
+                "Install the binary from https://arpe.io to enable execution."
             )
+            return
 
         if not self.binary_path.is_file():
-            raise MigratorXpressError(
-                f"MigratorXpress path is not a file: {self.binary_path}"
+            self._preview_only = True
+            logger.warning(
+                f"MigratorXpress path is not a file: {self.binary_path}. "
+                "Starting in preview-only mode."
             )
+            return
 
         if not os.access(self.binary_path, os.X_OK):
-            raise MigratorXpressError(
-                f"MigratorXpress binary is not executable: {self.binary_path}"
+            self._preview_only = True
+            logger.warning(
+                f"MigratorXpress binary is not executable: {self.binary_path}. "
+                "Starting in preview-only mode."
             )
+            return
 
     def build_command(self, params: MigrationParams) -> List[str]:
         """
@@ -297,8 +347,14 @@ class CommandBuilder:
             Tuple of (return_code, stdout, stderr)
 
         Raises:
-            MigratorXpressError: If execution fails or times out
+            MigratorXpressError: If in preview-only mode or execution fails/times out
         """
+        if self._preview_only:
+            raise MigratorXpressError(
+                f"Server is in preview-only mode (binary not found at {self.binary_path}). "
+                "Install the binary from https://arpe.io to enable execution."
+            )
+
         start_time = datetime.now()
 
         logger.info(
@@ -392,6 +448,8 @@ def get_supported_capabilities() -> Dict[str, Any]:
         "Target Databases": [
             "PostgreSQL (postgresql)",
             "SQL Server (sqlserver)",
+            "MySQL (mysql) — limited: schema creation only",
+            "Oracle (oracle)",
         ],
         "Migration Database": [
             "SQL Server (sqlserver)",

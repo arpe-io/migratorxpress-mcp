@@ -57,14 +57,16 @@ class TestSourceDatabaseType:
 class TestTargetDatabaseType:
     """Tests for TargetDatabaseType enum."""
 
-    def test_all_2_target_types(self):
-        """Test that there are exactly 2 target database types."""
-        assert len(TargetDatabaseType) == 2
+    def test_all_4_target_types(self):
+        """Test that there are exactly 4 target database types."""
+        assert len(TargetDatabaseType) == 4
 
     def test_target_types_exist(self):
         """Test all target database types exist."""
         assert TargetDatabaseType("postgresql") == TargetDatabaseType.POSTGRESQL
         assert TargetDatabaseType("sqlserver") == TargetDatabaseType.SQLSERVER
+        assert TargetDatabaseType("mysql") == TargetDatabaseType.MYSQL
+        assert TargetDatabaseType("oracle") == TargetDatabaseType.ORACLE
 
 
 class TestOtherEnums:

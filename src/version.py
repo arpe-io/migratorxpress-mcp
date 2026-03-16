@@ -81,6 +81,9 @@ class VersionCapabilities:
     supports_version_flag: bool = False
     supports_fasttransfer: bool = False
     supports_license: bool = False
+    supports_no_progress: bool = False
+    supports_quiet_ft: bool = False
+    supports_log_dir: bool = False
 
 
 # Static version registry: version string -> capabilities
@@ -141,6 +144,68 @@ VERSION_REGISTRY: Dict[str, VersionCapabilities] = {
         supports_version_flag=True,
         supports_fasttransfer=True,
         supports_license=True,
+    ),
+    "0.6.26": VersionCapabilities(
+        source_databases=frozenset(
+            [
+                "oracle",
+                "postgresql",
+                "sqlserver",
+                "netezza",
+            ]
+        ),
+        target_databases=frozenset(
+            [
+                "postgresql",
+                "sqlserver",
+                "mysql",
+                "oracle",
+            ]
+        ),
+        migration_db_types=frozenset(
+            [
+                "sqlserver",
+            ]
+        ),
+        tasks=frozenset(
+            [
+                "translate",
+                "create",
+                "transfer",
+                "diff",
+                "copy_pk",
+                "copy_ak",
+                "copy_fk",
+                "all",
+            ]
+        ),
+        fk_modes=frozenset(
+            [
+                "trusted",
+                "untrusted",
+                "disabled",
+            ]
+        ),
+        migration_db_modes=frozenset(
+            [
+                "preserve",
+                "truncate",
+                "drop",
+            ]
+        ),
+        load_modes=frozenset(
+            [
+                "truncate",
+                "append",
+            ]
+        ),
+        supports_no_banner=True,
+        supports_version_flag=True,
+        supports_fasttransfer=True,
+        supports_license=True,
+        supports_no_progress=True,
+        supports_quiet_ft=True,
+        supports_log_dir=True,
     ),
 }
 

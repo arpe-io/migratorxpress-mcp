@@ -89,21 +89,54 @@ class TestCommandBuilder:
             builder = CommandBuilder(mock_binary)
         assert builder.binary_path == Path(mock_binary)
 
-    def test_init_with_nonexistent_binary(self):
-        """Test initialization with nonexistent binary fails."""
-        with pytest.raises(MigratorXpressError) as exc_info:
-            CommandBuilder("/nonexistent/path/MigratorXpress")
-        assert "not found" in str(exc_info.value)
+    def test_init_with_nonexistent_binary_sets_preview_only(self):
+        """Test initialization with nonexistent binary enters preview-only mode."""
+        builder = CommandBuilder("/nonexistent/path/MigratorXpress")
+        assert builder._preview_only is True
 
-    def test_init_with_non_executable_binary(self, tmp_path):
-        """Test initialization with non-executable binary fails."""
+    def test_init_with_non_executable_binary_sets_preview_only(self, tmp_path):
+        """Test initialization with non-executable binary enters preview-only mode."""
         binary = tmp_path / "MigratorXpress"
         binary.write_text("not executable")
         binary.chmod(0o644)
 
+        builder = CommandBuilder(str(binary))
+        assert builder._preview_only is True
+
+    def test_preview_only_execute_command_raises(self):
+        """Test that execute_command raises in preview-only mode."""
+        builder = CommandBuilder("/nonexistent/path/MigratorXpress")
+        assert builder._preview_only is True
+
         with pytest.raises(MigratorXpressError) as exc_info:
-            CommandBuilder(str(binary))
-        assert "not executable" in str(exc_info.value)
+            builder.execute_command(["test"])
+        assert "preview-only mode" in str(exc_info.value)
+        assert "https://arpe.io" in str(exc_info.value)
+
+    def test_preview_only_get_version(self):
+        """Test that get_version works in preview-only mode with fallback capabilities."""
+        builder = CommandBuilder("/nonexistent/path/MigratorXpress")
+        assert builder._preview_only is True
+
+        info = builder.get_version()
+        assert info["preview_only"] is True
+        assert info["message"] == "Binary not found. Install from https://arpe.io"
+        assert info["version"] is None
+        assert info["detected"] is False
+        assert "capabilities" in info
+        # Should have capabilities from the latest registry entry
+        assert len(info["capabilities"]["tasks"]) > 0
+        assert len(info["capabilities"]["source_databases"]) > 0
+
+    def test_preview_only_build_command_works(self):
+        """Test that build_command works in preview-only mode."""
+        builder = CommandBuilder("/nonexistent/path/MigratorXpress")
+        assert builder._preview_only is True
+
+        params = MigrationParams(**_minimal_params())
+        command = builder.build_command(params)
+        assert command[0] == "/nonexistent/path/MigratorXpress"
+        assert "-a" in command
 
     def test_build_command_minimal(self, command_builder):
         """Test building command with minimal (6 required) params only."""
@@ -436,7 +469,7 @@ class TestHelperFunctions:
         assert "FK Modes" in caps
 
         assert len(caps["Source Databases"]) == 4
-        assert len(caps["Target Databases"]) == 2
+        assert len(caps["Target Databases"]) == 4
         assert len(caps["Migration Database"]) == 1
         assert len(caps["Tasks"]) == 8
         assert len(caps["Migration DB Modes"]) == 3
