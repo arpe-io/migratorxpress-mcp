@@ -77,10 +77,10 @@ try:
     command_builder = CommandBuilder(MIGRATORXPRESS_PATH)
     version_info = command_builder.get_version()
     if command_builder._preview_only:
-        logger.warning(
-            "MigratorXpress server starting in preview-only mode. "
-            "Preview and informational tools will work, but execution is disabled. "
-            "Install the binary from https://arpe.io to enable execution."
+        logger.info(
+            f"MigratorXpress binary not configured (path: {MIGRATORXPRESS_PATH}). "
+            "Command building and preview tools are available. "
+            "Download from https://arpe.io and set MIGRATORXPRESS_PATH to enable execution."
         )
     else:
         logger.info(f"MigratorXpress binary found at: {MIGRATORXPRESS_PATH}")
@@ -286,6 +286,12 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Path to license key file",
                     },
+                    "os_type": {
+                        "type": "string",
+                        "enum": ["linux", "windows"],
+                        "description": "Target operating system for command formatting",
+                        "default": "linux",
+                    },
                 },
                 "required": [
                     "auth_file",
@@ -420,12 +426,15 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
                     "Error: MigratorXpress could not be initialized.\n"
                     f"Expected binary location: {MIGRATORXPRESS_PATH}\n"
                     "Please set MIGRATORXPRESS_PATH environment variable correctly.\n"
-                    "Install the binary from https://arpe.io"
+                    "Download from https://arpe.io"
                 ),
             )
         ]
 
     try:
+        # Extract os_type before passing to MigrationParams (not part of the model)
+        os_type = arguments.pop("os_type", "linux")
+
         # Validate and parse parameters
         params = MigrationParams(**arguments)
 
@@ -440,7 +449,7 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
         command = command_builder.build_command(params)
 
         # Format for display (with license masking)
-        display_command = command_builder.format_command_display(command, mask=True)
+        display_command = command_builder.format_command_display(command, mask=True, os_type=os_type)
 
         # Create explanation
         explanation = _build_command_explanation(params)
@@ -453,10 +462,8 @@ async def handle_preview_command(arguments: Dict[str, Any]) -> list[TextContent]
 
         if command_builder._preview_only:
             response += [
-                "**NOTE: Server is in preview-only mode (binary not found at "
-                f"{command_builder.binary_path}). "
-                "Command preview is available but execution is disabled. "
-                "Install the binary from https://arpe.io to enable execution.**",
+                "**NOTE: Execution is not available (binary not configured).** "
+                "Download from https://arpe.io to enable execution.",
                 "",
             ]
 
@@ -516,7 +523,7 @@ async def handle_execute_command(arguments: Dict[str, Any]) -> list[TextContent]
                 text=(
                     "Error: MigratorXpress could not be initialized. "
                     "Please check MIGRATORXPRESS_PATH.\n"
-                    "Install the binary from https://arpe.io"
+                    "Download from https://arpe.io"
                 ),
             )
         ]
@@ -526,9 +533,8 @@ async def handle_execute_command(arguments: Dict[str, Any]) -> list[TextContent]
             TextContent(
                 type="text",
                 text=(
-                    f"Server is in preview-only mode (binary not found at "
-                    f"{command_builder.binary_path}). "
-                    "Install the binary from https://arpe.io to enable execution."
+                    "Execution requires the MigratorXpress binary. "
+                    "Download from https://arpe.io and set MIGRATORXPRESS_PATH."
                 ),
             )
         ]
@@ -784,7 +790,7 @@ async def handle_get_version(arguments: Dict[str, Any]) -> list[TextContent]:
                     "Error: MigratorXpress could not be initialized.\n"
                     f"Expected location: {MIGRATORXPRESS_PATH}\n"
                     "Please set MIGRATORXPRESS_PATH environment variable correctly.\n"
-                    "Install the binary from https://arpe.io"
+                    "Download from https://arpe.io"
                 ),
             )
         ]
@@ -799,7 +805,7 @@ async def handle_get_version(arguments: Dict[str, Any]) -> list[TextContent]:
 
     if version_info.get("preview_only"):
         response += [
-            "**Mode**: Preview-only (binary not found)",
+            "**Mode**: Command builder (execution not available)",
             f"**Binary Path**: {version_info['binary_path']}",
             f"**Message**: {version_info['message']}",
             "",
